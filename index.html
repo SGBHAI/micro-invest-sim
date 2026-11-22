@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Micro-Investment Growth Projection</title>
+<title>Micro-Investment Growth Projection — Swarit Garewal</title>
 <style>
   :root {
     --bg: #0f1115;
@@ -16,56 +16,125 @@
     --secondary: #10b981;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
-  body { background: var(--bg); color: var(--text); display: flex; justify-content: center; padding: 24px; }
-  .widget { background: var(--card); border: 1px solid var(--border); border-radius: 16px; max-width: 820px; width: 100%; padding: 24px; }
-  h2 { font-size: 1.25rem; margin-bottom: 16px; }
-  .summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
-  .stat { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 14px; }
-  .stat-label { font-size: 0.78rem; color: var(--muted); margin-bottom: 4px; }
-  .stat-val { font-size: 1.25rem; font-weight: 700; }
+  html, body {
+    height: 100dvh;
+    width: 100vw;
+    overflow: hidden;
+    background: var(--bg);
+    color: var(--text);
+  }
+  body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding: clamp(10px, 2vh, 20px) clamp(12px, 3vw, 24px);
+    gap: 10px;
+  }
+  .widget {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    max-width: 860px;
+    width: 100%;
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    padding: clamp(14px, 2.2vh, 22px);
+    gap: clamp(10px, 1.5vh, 16px);
+  }
+  .top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  h2 { font-size: clamp(1rem, 2.2vh, 1.25rem); font-weight: 700; }
+  .legend { display: flex; gap: 16px; font-size: 0.78rem; color: var(--muted); }
+  .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 5px; }
+  .summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .stat {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: clamp(8px, 1.2vh, 12px) 14px;
+  }
+  .stat-label { font-size: 0.72rem; color: var(--muted); margin-bottom: 2px; }
+  .stat-val { font-size: clamp(1rem, 2vh, 1.2rem); font-weight: 700; white-space: nowrap; }
   .stat-val.positive { color: var(--secondary); }
-  canvas { width: 100%; height: 300px; display: block; margin-bottom: 20px; }
-  .sliders { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
-  .control { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 12px; }
-  .control-header { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 8px; }
-  .control-val { font-weight: 600; color: var(--accent); }
-  input[type="range"] { width: 100%; accent-color: var(--accent); cursor: pointer; }
-  .legend { display: flex; gap: 20px; font-size: 0.82rem; color: var(--muted); margin-bottom: 12px; }
-  .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; }
+  .chart-wrap { flex: 1; min-height: 0; position: relative; width: 100%; }
+  canvas { width: 100%; height: 100%; display: block; }
+  .sliders { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .control {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: clamp(8px, 1.1vh, 11px) 12px;
+    min-width: 0;
+  }
+  .control-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.76rem;
+    margin-bottom: 6px;
+  }
+  .control-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); }
+  .control-val { font-weight: 600; color: var(--accent); white-space: nowrap; }
+  input[type="range"] { width: 100%; accent-color: var(--accent); cursor: pointer; height: 16px; display: block; }
+  footer { font-size: 0.76rem; color: var(--muted); text-align: center; flex-shrink: 0; }
+
+  @media (max-width: 720px) {
+    .sliders { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    .summary { gap: 8px; }
+    .stat { padding: 8px 10px; }
+  }
+  @media (max-height: 620px) {
+    .stat-label { display: none; }
+    .control-header { margin-bottom: 3px; }
+  }
 </style>
 </head>
 <body>
 <div class="widget">
-  <h2>Micro-Investment Growth Projection</h2>
+  <div class="top-bar">
+    <h2>Micro-Investment Growth Projection</h2>
+    <div class="legend">
+      <span><i class="dot" style="background:var(--accent)"></i>Projected Corpus</span>
+      <span><i class="dot" style="background:var(--secondary)"></i>Principal Invested</span>
+    </div>
+  </div>
   <div class="summary">
     <div class="stat"><div class="stat-label">Starting Seed</div><div class="stat-val" id="sumInitial">₹250</div></div>
     <div class="stat"><div class="stat-label">Total Invested</div><div class="stat-val" id="sumInvested">₹36,250</div></div>
     <div class="stat"><div class="stat-label">Projected Corpus</div><div class="stat-val positive" id="sumTotal">₹69,731</div></div>
   </div>
-  <div class="legend">
-    <span><i class="dot" style="background:var(--accent)"></i>Projected Corpus</span>
-    <span><i class="dot" style="background:var(--secondary)"></i>Total Principal Invested</span>
+  <div class="chart-wrap">
+    <canvas id="chart"></canvas>
   </div>
-  <canvas id="chart"></canvas>
   <div class="sliders">
     <div class="control">
-      <div class="control-header"><span>Starting amount</span><span class="control-val" id="valInitial">₹250</span></div>
+      <div class="control-header"><span class="control-label">Starting amount</span><span class="control-val" id="valInitial">₹250</span></div>
       <input type="range" id="initial" min="100" max="5000" step="50" value="250">
     </div>
     <div class="control">
-      <div class="control-header"><span>Monthly contribution</span><span class="control-val" id="valMonthly">₹300</span></div>
+      <div class="control-header"><span class="control-label">Monthly SIP</span><span class="control-val" id="valMonthly">₹300</span></div>
       <input type="range" id="monthly" min="0" max="10000" step="100" value="300">
     </div>
     <div class="control">
-      <div class="control-header"><span>Expected annual return (%)</span><span class="control-val" id="valRate">12%</span></div>
+      <div class="control-header"><span class="control-label">Annual return</span><span class="control-val" id="valRate">12%</span></div>
       <input type="range" id="rate" min="6" max="20" step="0.5" value="12">
     </div>
     <div class="control">
-      <div class="control-header"><span>Time horizon</span><span class="control-val" id="valYears">10 yrs</span></div>
+      <div class="control-header"><span class="control-label">Horizon</span><span class="control-val" id="valYears">10 yrs</span></div>
       <input type="range" id="years" min="1" max="25" step="1" value="10">
     </div>
   </div>
 </div>
+<footer>Designed and Developed by Swarit Garewal</footer>
 
 <script>
   const fmtINR = n => '₹' + Math.round(n).toLocaleString('en-IN');
@@ -113,15 +182,17 @@
 
     const dpr = window.devicePixelRatio || 1;
     const rect = canvas.getBoundingClientRect();
-    canvas.width = rect.width * dpr;
-    canvas.height = rect.height * dpr;
-    ctx.scale(dpr, dpr);
+    if (rect.width === 0 || rect.height === 0) return;
+
+    canvas.width = Math.round(rect.width * dpr);
+    canvas.height = Math.round(rect.height * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
     const w = rect.width;
     const h = rect.height;
-    const pad = { top: 20, right: 20, bottom: 30, left: 65 };
-    const plotW = w - pad.left - pad.right;
-    const plotH = h - pad.top - pad.bottom;
+    const pad = { top: 14, right: 16, bottom: 24, left: 60 };
+    const plotW = Math.max(10, w - pad.left - pad.right);
+    const plotH = Math.max(10, h - pad.top - pad.bottom);
 
     ctx.clearRect(0, 0, w, h);
 
@@ -141,11 +212,13 @@
       ctx.moveTo(pad.left, y);
       ctx.lineTo(w - pad.right, y);
       ctx.stroke();
-      ctx.fillText('₹' + Math.round(val / 1000) + 'k', 8, y + 4);
+      const label = val >= 100000 ? '₹' + (val / 100000).toFixed(1) + 'L' : '₹' + Math.round(val / 1000) + 'k';
+      ctx.fillText(label, 6, y + 4);
     }
 
-    for (let t = 0; t <= years; t += Math.max(1, Math.floor(years / 5))) {
-      ctx.fillText(t + 'y', getX(t) - 8, h - 8);
+    const stepX = Math.max(1, Math.floor(years / 5));
+    for (let t = 0; t <= years; t += stepX) {
+      ctx.fillText(t + 'y', getX(t) - 7, h - 6);
     }
 
     ctx.beginPath();
@@ -169,7 +242,7 @@
   }
 
   Object.values(inputs).forEach(el => el.addEventListener('input', draw));
-  window.addEventListener('resize', draw);
+  new ResizeObserver(draw).observe(canvas);
   draw();
 </script>
 </body>
